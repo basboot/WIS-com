@@ -1,5 +1,6 @@
 import subprocess
 import sys
+import subprocess
 
 assert ((sys.platform  == "darwin") or (sys.platform  == "linux")), "Platform unsupprted"
 
@@ -15,6 +16,15 @@ output = (subprocess.Popen(["./motelist-zolertia-macos", "-c"], stdout=subproces
 devices = output.splitlines()
 
 for device in devices:
-    print("Flashing device on USB: %s" % device.split(",")[1])
+    print("Flashing device on USB: '%s'" % device.split(",")[1])
+    usb = device.split(",")[1]
+
+    flash_output = (subprocess.Popen(["python3", "cc2538-bsl.py", "-e", "-w",  "-v",  "-a 0x00200000",  "-b",  "460800",
+                      "-p%s" % usb,  "crystal-test.bin" ], stdout=subprocess.PIPE).communicate()[0]).decode("utf-8")
+
+    #print(flash_output)
+
+
+
 
 
