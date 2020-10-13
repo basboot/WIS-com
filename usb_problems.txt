@@ -1,0 +1,64 @@
+First few uploads OK
+
+Then some minor issues in log (failed set request)
+
+And then all tty USB ports become unreachable
+
+LOG:
+
+==> kern.log <==
+Oct 13 16:01:57 labsetup kernel: [  120.729126] cp210x ttyUSB2: failed set request 0x12 status: -110
+
+==> syslog <==
+Oct 13 16:01:57 labsetup kernel: [  120.729126] cp210x ttyUSB2: failed set request 0x12 status: -110
+
+==> kern.log <==
+Oct 13 16:02:02 labsetup kernel: [  125.768962] cp210x ttyUSB2: failed set request 0x0 status: -110
+
+==> syslog <==
+Oct 13 16:02:02 labsetup kernel: [  125.768962] cp210x ttyUSB2: failed set request 0x0 status: -110
+
+==> kern.log <==
+Oct 13 16:02:21 labsetup kernel: [  144.729320] cp210x ttyUSB3: failed set request 0x12 status: -110
+
+==> syslog <==
+Oct 13 16:02:21 labsetup kernel: [  144.729320] cp210x ttyUSB3: failed set request 0x12 status: -110
+
+==> kern.log <==
+Oct 13 16:02:26 labsetup kernel: [  149.769276] cp210x ttyUSB3: failed set request 0x0 status: -110
+
+==> syslog <==
+Oct 13 16:02:26 labsetup kernel: [  149.769276] cp210x ttyUSB3: failed set request 0x0 status: -110
+
+==> kern.log <==
+Oct 13 16:02:31 labsetup kernel: [  154.969413] cp210x ttyUSB4: failed set request 0x0 status: -110
+Oct 13 16:02:31 labsetup kernel: [  154.969431] cp210x ttyUSB4: cp210x_open - Unable to enable UART
+
+==> syslog <==
+Oct 13 16:02:31 labsetup kernel: [  154.969413] cp210x ttyUSB4: failed set request 0x0 status: -110
+Oct 13 16:02:31 labsetup kernel: [  154.969431] cp210x ttyUSB4: cp210x_open - Unable to enable UART
+
+==> kern.log <==
+Oct 13 16:02:37 labsetup kernel: [  160.249400] cp210x ttyUSB5: failed set request 0x0 status: -110
+Oct 13 16:02:37 labsetup kernel: [  160.249415] cp210x ttyUSB5: cp210x_open - Unable to enable UART
+
+==> syslog <==
+Oct 13 16:02:37 labsetup kernel: [  160.249400] cp210x ttyUSB5: failed set request 0x0 status: -110
+Oct 13 16:02:37 labsetup kernel: [  160.249415] cp210x ttyUSB5: cp210x_open - Unable to enable UART
+
+==> kern.log <==
+Oct 13 16:02:42 labsetup kernel: [  165.529491] cp210x ttyUSB6: failed set request 0x0 status: -110
+Oct 13 16:02:42 labsetup kernel: [  165.529508] cp210x ttyUSB6: cp210x_open - Unable to enable UART
+
+==> syslog <==
+Oct 13 16:02:42 labsetup kernel: [  165.529491] cp210x ttyUSB6: failed set request 0x0 status: -110
+Oct 13 16:02:42 labsetup kernel: [  165.529508] cp210x ttyUSB6: cp210x_open - Unable to enable UART
+
+==> kern.log <==
+Oct 13 16:02:47 labsetup kernel: [  170.809537] cp210x ttyUSB7: failed set request 0x0 status: -110
+Oct 13 16:02:47 labsetup kernel: [  170.809569] cp210x ttyUSB7: cp210x_open - Unable to enable UART
+
+==> syslog <==
+Oct 13 16:02:47 labsetup kernel: [  170.809537] cp210x ttyUSB7: failed set request 0x0 status: -110
+Oct 13 16:02:47 labsetup kernel: [  170.809569] cp210x ttyUSB7: cp210x_open - Unable to enable UART
+
