@@ -27,7 +27,7 @@ for device in devices:
     print("Flashing device on USB: '%s'" % device.split(",")[1])
     usb = device.split(",")[1]
 
-    flash_output = (subprocess.Popen(["python3", "cc2538-bsl.py", "-e", "-w",  "-v",  "-a 0x00200000",  "-b",  "115200",
+    flash_output = (subprocess.Popen(["python3", "cc2538-bsl.py", "-e", "-w",  "-v",  "-a 0x00200000",  "-b",  "460800",
                       "-p%s" % usb,  "%s/crystal-test.bin" % dir ], stdout=subprocess.PIPE).communicate()[0]).decode("utf-8")
 
     #print(flash_output)
