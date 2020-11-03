@@ -8,6 +8,8 @@ import subprocess
 
 import time
 
+running = True
+
 def current_milli_time():
     return int(round(time.time() * 1000))
 
@@ -16,7 +18,7 @@ START_TIME = current_milli_time()
 serial_queue = Queue(1000)
 
 def serial_read(s):
-    while True:
+    while running:
         line = s.readline()
         serial_queue.put("%s,%s" % (current_milli_time()-START_TIME, line.decode("utf-8").rstrip()))
         #print(line)
@@ -52,11 +54,18 @@ for thread in threads:
 
 
 
-
-
-
-while True:
-    if (serial_queue.empty()):
-        continue
-    line = serial_queue.get(True, 1)
-    print(line)
+try:
+    while True:
+        if (serial_queue.empty()):
+            continue
+        line = serial_queue.get(True, 1)
+        print(line)
+except:
+    # signal threads to stop
+    running = False
+    print("An exception occurred")
+finally:
+    # wait for serial threads to stop
+    time.sleep(1)
+    for ser in serials:
+        ser.close()
