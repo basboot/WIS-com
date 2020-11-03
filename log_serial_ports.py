@@ -6,12 +6,19 @@ import threading
 import sys
 import subprocess
 
+import time
+
+def current_milli_time():
+    return int(round(time.time() * 1000))
+
+START_TIME = current_milli_time()
+
 serial_queue = Queue(1000)
 
 def serial_read(s):
     while True:
         line = s.readline()
-        serial_queue.put(line)
+        serial_queue.put("%s,%s" % (current_milli_time()-START_TIME, line.decode("utf-8").rstrip()))
         #print(line)
 
 assert ((sys.platform  == "darwin") or (sys.platform  == "linux") or (sys.platform == "linux2")), "Platform unsupprted"
@@ -35,8 +42,9 @@ threads = []
 for device in devices:
     print("Opening serial connection on USB: '%s'" % device.split(",")[1])
     usb = device.split(",")[1]
-
-    serials.append(serial.Serial(usb, 115200))
+    ser = serial.Serial(usb, 115200)
+    ser.flushInput()
+    serials.append(ser)
     threads.append(threading.Thread(target=serial_read, args=(serials[-1],), ))
 
 for thread in threads:
