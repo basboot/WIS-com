@@ -8,19 +8,50 @@ import subprocess
 
 import time
 
+# to filter out the serial data we want to log
+sensors_to_log = [247, 210]
+sensors_data = {247: {'s1': 0, 's2': 0, 'a': 0}, 210: {'s1': 0, 's2': 0, 'a': 0}}
+sensor_to_sync = 247
+
+ports_to_skip = ['/dev/tty.SLAB_USBtoUART3']
+# to stop the threads
 running = True
 
+# current time in milliseconds
 def current_milli_time():
     return int(round(time.time() * 1000))
 
+# to calculate time relative to start of script
 START_TIME = current_milli_time()
 
+# queue to keep all messages
 serial_queue = Queue(1000)
+
+def log_sensors():
+    data = ""
+    for sensor in sensors_to_log:
+        data = data + "%s,%s,%s,%s," % (sensor, sensors_data[sensor]["s1"], sensors_data[sensor]["s2"], sensors_data[sensor]["a"])
+
+    print("%s,%s" % (current_milli_time()-START_TIME, data))
 
 def serial_read(s):
     while running:
         line = s.readline()
-        serial_queue.put("%s,%s" % (current_milli_time()-START_TIME, line.decode("utf-8").rstrip()))
+
+        data = line.decode("utf-8").rstrip().split(',')
+
+        # skip error messaged
+        if (len(data) > 1):
+            sensor = int(data[1])
+            if (sensor in sensors_data.keys()):
+                # python dict is thread safe https://docs.python.org/3/glossary.html#term-global-interpreter-lock
+                sensors_data[sensor]['s1'] = int(data[2])
+                sensors_data[sensor]['s2'] = int(data[3])
+                sensors_data[sensor]['a'] = int(data[6])
+
+                if (sensor == sensor_to_sync):
+                    log_sensors()
+
         #print(line)
 
 assert ((sys.platform  == "darwin") or (sys.platform  == "linux") or (sys.platform == "linux2")), "Platform unsupprted"
@@ -41,7 +72,11 @@ print(devices)
 serials = []
 threads = []
 
+#devices = ['/dev/cu.SLAB_USBtoUART', '/dev/cu.SLAB_USBtoUART6']
+
 for device in devices:
+    if device.split(",")[1] in ports_to_skip:
+        continue
     print("Opening serial connection on USB: '%s'" % device.split(",")[1])
     usb = device.split(",")[1]
     ser = serial.Serial(usb, 115200)
@@ -56,10 +91,11 @@ for thread in threads:
 
 try:
     while True:
-        if (serial_queue.empty()):
-            continue
-        line = serial_queue.get(True, 1)
-        print(line)
+        # if (serial_queue.empty()):
+        #     continue
+        # line = serial_queue.get(True, 1)
+        # print(line)
+        pass
 except:
     # signal threads to stop
     running = False
