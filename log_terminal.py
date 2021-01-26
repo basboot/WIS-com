@@ -32,7 +32,14 @@ sensors_to_log = [201, 202, 203, 204]
 sensors_data = {201: {'s1': 0, 's2': 0, 'a': 0}, 202: {'s1': 0, 's2': 0, 'a': 0}, 203: {'s1': 0, 's2': 0, 'a': 0}, 204: {'s1': 0, 's2': 0, 'a': 0}}
 sensor_to_sync = 204
 
-ports_to_skip = ['/dev/tty.SLAB_USBtoUART13', '/dev/tty.SLAB_USBtoUART', '/dev/tty.SLAB_USBtoUART12', '/dev/tty.SLAB_USBtoUART5']
+# sensors_to_log = [247, 210]
+# sensors_data = {247: {'s1': 0, 's2': 0, 'a': 0}, 210: {'s1': 0, 's2': 0, 'a': 0}}
+# sensor_to_sync = 210
+
+ports_to_skip = ['/dev/tty.SLAB_USBtoUART3', '/dev/tty.SLAB_USBtoUART4', '/dev/tty.SLAB_USBtoUART6', '/dev/tty.SLAB_USBtoUART9']
+#ports_to_skip = ['/dev/tty.SLAB_USBtoUART13', '/dev/tty.SLAB_USBtoUART', '/dev/tty.SLAB_USBtoUART12', '/dev/tty.SLAB_USBtoUART5']
+#ports_to_skip = []#['/dev/tty.SLAB_USBtoUART13', '/dev/tty.SLAB_USBtoUART', '/dev/tty.SLAB_USBtoUART12', '/dev/tty.SLAB_USBtoUART5']
+
 # to stop the threads
 running = True
 
@@ -43,7 +50,7 @@ def current_milli_time():
 # to calculate time relative to start of script
 START_TIME = current_milli_time()
 # 20210120_step_gate3_4_s25_no_intake.csv
-f = open("20210120_step_gate3_4_s25_no_intake_fast.csv", "w")
+f = open("20210126_test.csv", "w")
 #f = None
 firstLine = True # TODO: think of better solution
 
@@ -311,27 +318,35 @@ class Jimterm:
                 if not self.raw:
                     data = self.quote_raw(data)
 
-                line = data
+                lines = data
 
                 # TODO: clean up quick and dirty solution if it works
 
                 #print(">", data)
 
-                data = line.decode("utf-8").rstrip().split(',')
+                for line in lines.decode("utf-8").rstrip().split('\n'):
 
-                # skip error messaged
-                if (len(data) > 1):
-                    sensor = int(data[1])
-                    if (sensor in sensors_data.keys()):
-                        # python dict is thread safe https://docs.python.org/3/glossary.html#term-global-interpreter-lock
-                        sensors_data[sensor]['s1'] = int(data[2])
-                        sensors_data[sensor]['s2'] = int(data[3])
-                        sensors_data[sensor]['a'] = int(data[6])
+                    data = line.split(',')
 
-                        if (sensor == sensor_to_sync):
-                            log_sensors()
+                    # skip error messaged
+                    if (len(data) > 1):
+                        sensor = int(data[1])
+                        if (sensor in sensors_data.keys()):
+                            # python dict is thread safe https://docs.python.org/3/glossary.html#term-global-interpreter-lock
+                            try:
+                                sensors_data[sensor]['s1'] = int(data[2])
+                                sensors_data[sensor]['s2'] = int(data[3])
+                                sensors_data[sensor]['a'] = int(data[6])
+                            except:
+                                print("An exception occurred while converting serial data")
+                                print(">",line,"<")
 
-                #os.write(sys.stdout.fileno(), data)
+                            if (sensor == sensor_to_sync):
+                                log_sensors()
+                    else:
+                        print("sync")
+
+                    #os.write(sys.stdout.fileno(), data)
 
                 self.output_lock.release()
 
@@ -440,7 +455,7 @@ if __name__ == "__main__":
                         help="Don't print header")
 
     parser.add_argument("--baudrate", "-b", metavar="BAUD", type=int,
-                        help="Default baudrate for all devices", default=115200)
+                        help="Default baudrate for all devices", default=460800)
     parser.add_argument("--crlf", "-c", action="store_true",
                         help="Add CR before incoming LF")
     parser.add_argument("--lfcr", "-C", action="store_true",
