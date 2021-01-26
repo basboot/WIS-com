@@ -9,11 +9,15 @@ import subprocess
 import time
 
 # to filter out the serial data we want to log
-sensors_to_log = [247, 210]
-sensors_data = {247: {'s1': 0, 's2': 0, 'a': 0}, 210: {'s1': 0, 's2': 0, 'a': 0}}
-sensor_to_sync = 247
+# sensors_to_log = [247, 210]
+# sensors_data = {247: {'s1': 0, 's2': 0, 'a': 0}, 210: {'s1': 0, 's2': 0, 'a': 0}}
+# sensor_to_sync = 247
 
-ports_to_skip = ['/dev/tty.SLAB_USBtoUART3']
+sensors_to_log = [201, 202, 203, 204]
+sensors_data = {201: {'s1': 0, 's2': 0, 'a': 0}, 202: {'s1': 0, 's2': 0, 'a': 0}, 203: {'s1': 0, 's2': 0, 'a': 0}, 204: {'s1': 0, 's2': 0, 'a': 0}}
+sensor_to_sync = 204
+
+ports_to_skip = ['/dev/tty.SLAB_USBtoUART3', '/dev/tty.SLAB_USBtoUART4', '/dev/tty.SLAB_USBtoUART6', '/dev/tty.SLAB_USBtoUART9']
 # to stop the threads
 running = True
 
@@ -79,7 +83,7 @@ for device in devices:
         continue
     print("Opening serial connection on USB: '%s'" % device.split(",")[1])
     usb = device.split(",")[1]
-    ser = serial.Serial(usb, 115200)
+    ser = serial.Serial(usb, 460800)
     ser.flushInput()
     serials.append(ser)
     threads.append(threading.Thread(target=serial_read, args=(serials[-1],), ))
