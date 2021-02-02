@@ -36,7 +36,7 @@ sensor_to_sync = 204
 # sensors_data = {247: {'s1': 0, 's2': 0, 'a': 0}, 210: {'s1': 0, 's2': 0, 'a': 0}}
 # sensor_to_sync = 210
 
-ports_to_skip = ['/dev/tty.SLAB_USBtoUART3', '/dev/tty.SLAB_USBtoUART4', '/dev/tty.SLAB_USBtoUART6', '/dev/tty.SLAB_USBtoUART9']
+ports_to_skip = ['/dev/tty.SLAB_USBtoUART', '/dev/tty.SLAB_USBtoUART3', '/dev/tty.SLAB_USBtoUART4', '/dev/tty.SLAB_USBtoUART7']
 #ports_to_skip = ['/dev/tty.SLAB_USBtoUART13', '/dev/tty.SLAB_USBtoUART', '/dev/tty.SLAB_USBtoUART12', '/dev/tty.SLAB_USBtoUART5']
 #ports_to_skip = []#['/dev/tty.SLAB_USBtoUART13', '/dev/tty.SLAB_USBtoUART', '/dev/tty.SLAB_USBtoUART12', '/dev/tty.SLAB_USBtoUART5']
 
@@ -50,7 +50,7 @@ def current_milli_time():
 # to calculate time relative to start of script
 START_TIME = current_milli_time()
 # 20210120_step_gate3_4_s25_no_intake.csv
-f = open("20210126_test.csv", "w")
+f = open("20210126_step_gate1_2_s25_no_intake.csv", "w")
 #f = None
 firstLine = True # TODO: think of better solution
 
