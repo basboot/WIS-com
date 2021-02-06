@@ -32,11 +32,16 @@ sensors_to_log = [201, 202, 203, 204]
 sensors_data = {201: {'s1': 0, 's2': 0, 'a': 0}, 202: {'s1': 0, 's2': 0, 'a': 0}, 203: {'s1': 0, 's2': 0, 'a': 0}, 204: {'s1': 0, 's2': 0, 'a': 0}}
 sensor_to_sync = 204
 
+files_to_log = {"SLAB_USBtoUART3": {"filename" : "SLAB_USBtoUART3.txt", "file": None, "lines": None},
+                "SLAB_USBtoUART": {"filename" : "SLAB_USBtoUART2.txt", "file": None, "lines": None},
+                "SLAB_USBtoUART8": {"filename" : "SLAB_USBtoUART.txt", "file": None, "lines": None},
+                "SLAB_USBtoUART9": {"filename" : "SLAB_USBtoUART6.txt", "file": None, "lines": None}}
+
 # sensors_to_log = [247, 210]
 # sensors_data = {247: {'s1': 0, 's2': 0, 'a': 0}, 210: {'s1': 0, 's2': 0, 'a': 0}}
 # sensor_to_sync = 210
 
-ports_to_skip = ['/dev/tty.SLAB_USBtoUART', '/dev/tty.SLAB_USBtoUART3', '/dev/tty.SLAB_USBtoUART4', '/dev/tty.SLAB_USBtoUART7']
+ports_to_skip = ['/dev/tty.SLAB_USBtoUART6', '/dev/tty.SLAB_USBtoUART7', '/dev/tty.SLAB_USBtoUART4', '/dev/tty.SLAB_USBtoUART5']
 #ports_to_skip = ['/dev/tty.SLAB_USBtoUART13', '/dev/tty.SLAB_USBtoUART', '/dev/tty.SLAB_USBtoUART12', '/dev/tty.SLAB_USBtoUART5']
 #ports_to_skip = []#['/dev/tty.SLAB_USBtoUART13', '/dev/tty.SLAB_USBtoUART', '/dev/tty.SLAB_USBtoUART12', '/dev/tty.SLAB_USBtoUART5']
 
@@ -50,7 +55,7 @@ def current_milli_time():
 # to calculate time relative to start of script
 START_TIME = current_milli_time()
 # 20210120_step_gate3_4_s25_no_intake.csv
-f = open("20210126_step_gate1_2_s25_no_intake.csv", "w")
+f = open("20210202_step_gate3_4_s100_no_intake.csv", "w")
 #f = None
 firstLine = True # TODO: think of better solution
 
@@ -282,6 +287,7 @@ class Jimterm:
 
     def reader(self, serial, color):
         """loop and copy serial->console"""
+
         first = True
         try:
             if (sys.version_info < (3,)):
@@ -289,6 +295,7 @@ class Jimterm:
             else:
                 null = b'\x00'
             while self.alive:
+                #print(serial.port.split('/')[2].split('.')[1])
                 data = serial.nonblocking_read(self.bufsize)
                 if data is None:
                     continue
@@ -318,35 +325,38 @@ class Jimterm:
                 if not self.raw:
                     data = self.quote_raw(data)
 
-                lines = data
+                # lines = data
+                #
+                # # TODO: clean up quick and dirty solution if it works
+                #
+                # #print(">", data)
+                #
+                # for line in lines.decode("utf-8").rstrip().split('\n'):
+                #
+                #     data = line.split(',')
+                #
+                #     # skip error messaged
+                #     if (len(data) > 1):
+                #         sensor = int(data[0])
+                #         if (sensor in sensors_data.keys()):
+                #             # python dict is thread safe https://docs.python.org/3/glossary.html#term-global-interpreter-lock
+                #             try:
+                #                 sensors_data[sensor]['s1'] = int(data[1])
+                #                 sensors_data[sensor]['s2'] = int(data[2])
+                #                 sensors_data[sensor]['a'] = int(data[3])
+                #             except:
+                #                 print("An exception occurred while converting serial data")
+                #                 print(">",line,"<")
+                #
+                #             if (sensor == sensor_to_sync):
+                #                 log_sensors()
+                #     else:
+                #         print("sync")
 
-                # TODO: clean up quick and dirty solution if it works
+                os.write(sys.stdout.fileno(), data)
+                files_to_log[serial.port.split('/')[2].split('.')[1]]["file"].write(data)
 
-                #print(">", data)
 
-                for line in lines.decode("utf-8").rstrip().split('\n'):
-
-                    data = line.split(',')
-
-                    # skip error messaged
-                    if (len(data) > 1):
-                        sensor = int(data[1])
-                        if (sensor in sensors_data.keys()):
-                            # python dict is thread safe https://docs.python.org/3/glossary.html#term-global-interpreter-lock
-                            try:
-                                sensors_data[sensor]['s1'] = int(data[2])
-                                sensors_data[sensor]['s2'] = int(data[3])
-                                sensors_data[sensor]['a'] = int(data[6])
-                            except:
-                                print("An exception occurred while converting serial data")
-                                print(">",line,"<")
-
-                            if (sensor == sensor_to_sync):
-                                log_sensors()
-                    else:
-                        print("sync")
-
-                    #os.write(sys.stdout.fileno(), data)
 
                 self.output_lock.release()
 
@@ -492,8 +502,8 @@ if __name__ == "__main__":
     nodes = []
     bauds = []
 
-
-
+    for d in files_to_log.keys():
+        files_to_log[d]["file"] = open(files_to_log[d]["filename"], 'wb')
 
     for (n, device) in enumerate(firefly_devices()):
         m = re.search(r"^(.*)@([1-9][0-9]*)$", device)
