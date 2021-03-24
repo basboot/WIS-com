@@ -32,16 +32,16 @@ sensors_to_log = [201, 202, 203, 204]
 sensors_data = {201: {'s1': 0, 's2': 0, 'a': 0}, 202: {'s1': 0, 's2': 0, 'a': 0}, 203: {'s1': 0, 's2': 0, 'a': 0}, 204: {'s1': 0, 's2': 0, 'a': 0}}
 sensor_to_sync = 204
 
-files_to_log = {"SLAB_USBtoUART3": {"filename" : "SLAB_USBtoUART3.txt", "file": None, "lines": None},
-                "SLAB_USBtoUART": {"filename" : "SLAB_USBtoUART2.txt", "file": None, "lines": None},
-                "SLAB_USBtoUART8": {"filename" : "SLAB_USBtoUART.txt", "file": None, "lines": None},
-                "SLAB_USBtoUART9": {"filename" : "SLAB_USBtoUART6.txt", "file": None, "lines": None}}
+files_to_log = {"SLAB_USBtoUART": {"filename" : "SLAB_USBtoUART3.txt", "file": None, "lines": None},
+                "SLAB_USBtoUART7": {"filename" : "SLAB_USBtoUART2.txt", "file": None, "lines": None},
+                "SLAB_USBtoUART4": {"filename" : "SLAB_USBtoUART.txt", "file": None, "lines": None},
+                "SLAB_USBtoUART11": {"filename" : "SLAB_USBtoUART6.txt", "file": None, "lines": None}}
 
 # sensors_to_log = [247, 210]
 # sensors_data = {247: {'s1': 0, 's2': 0, 'a': 0}, 210: {'s1': 0, 's2': 0, 'a': 0}}
 # sensor_to_sync = 210
 
-ports_to_skip = ['/dev/tty.SLAB_USBtoUART6', '/dev/tty.SLAB_USBtoUART7', '/dev/tty.SLAB_USBtoUART4', '/dev/tty.SLAB_USBtoUART5']
+ports_to_skip = ['/dev/tty.SLAB_USBtoUART3', '/dev/tty.SLAB_USBtoUART5', '/dev/tty.SLAB_USBtoUART6', '/dev/tty.SLAB_USBtoUART16']
 #ports_to_skip = ['/dev/tty.SLAB_USBtoUART13', '/dev/tty.SLAB_USBtoUART', '/dev/tty.SLAB_USBtoUART12', '/dev/tty.SLAB_USBtoUART5']
 #ports_to_skip = []#['/dev/tty.SLAB_USBtoUART13', '/dev/tty.SLAB_USBtoUART', '/dev/tty.SLAB_USBtoUART12', '/dev/tty.SLAB_USBtoUART5']
 
@@ -55,8 +55,8 @@ def current_milli_time():
 # to calculate time relative to start of script
 START_TIME = current_milli_time()
 # 20210120_step_gate3_4_s25_no_intake.csv
-f = open("20210202_step_gate3_4_s100_no_intake.csv", "w")
-#f = None
+#f = open("20210202_step_gate3_4_s100_no_intake.csv", "w")
+f = None
 firstLine = True # TODO: think of better solution
 
 def log_sensors():
