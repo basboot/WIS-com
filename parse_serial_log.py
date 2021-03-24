@@ -4,13 +4,13 @@ ts = 1/sps
 
 t = 0
 
-files_to_log = {"SLAB_USBtoUART3": {"filename" : "SLAB_USBtoUART3.txt", "file": None, "lines": None},
-                "SLAB_USBtoUART2": {"filename" : "SLAB_USBtoUART2.txt", "file": None, "lines": None},
-                "SLAB_USBtoUART": {"filename" : "SLAB_USBtoUART.txt", "file": None, "lines": None},
-                "SLAB_USBtoUART6": {"filename" : "SLAB_USBtoUART6.txt", "file": None, "lines": None}}
+files_to_log = {"SLAB_USBtoUART14": {"filename" : "SLAB_USBtoUART3.txt", "file": None, "lines": None},
+                "SLAB_USBtoUART6": {"filename" : "SLAB_USBtoUART2.txt", "file": None, "lines": None},
+                "SLAB_USBtoUART12": {"filename" : "SLAB_USBtoUART.txt", "file": None, "lines": None},
+                "SLAB_USBtoUART3": {"filename" : "SLAB_USBtoUART6.txt", "file": None, "lines": None}}
 
 
-file_out_name = "20210202_step_gate3_4_s50_no_intake3.csv"
+file_out_name = "20210323_controller2c_offtakes_after_target.csv"
 
 sensors_to_log = [201,202,203,204]
 
@@ -43,14 +43,17 @@ for line in range(max_lines):
         if len(data) < 4:
             continue
         else:
-            if len(data) > 5:
+            if len(data) > 7: #5
                 print("WARNING > 5")
                 continue
 
             if data[0] == "Sync":
                 sync_found = True
             else:
-                sensor_data[int(data[0])] = "%s,%s,%s,%s" % (data[0], data[1], data[2], data[3])#files_to_log[d]["lines"][line]
+                #sensor_data[int(data[0])] = "%s,%s,%s,%s" % (data[0], data[1], data[2], data[3])#files_to_log[d]["lines"][line]
+                sensor_data[int(data[0])] = "%s,%s,%s,%s,%s,%s" % (
+                data[0], data[1], data[2], data[3], data[4], data[5])  # files_to_log[d]["lines"][line]
+
                 sensor_count += 1
 
     if sync_found:
