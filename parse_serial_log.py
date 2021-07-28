@@ -4,13 +4,14 @@ ts = 1/sps
 
 t = 0
 
-files_to_log = {"SLAB_USBtoUART14": {"filename" : "SLAB_USBtoUART3.txt", "file": None, "lines": None},
-                "SLAB_USBtoUART6": {"filename" : "SLAB_USBtoUART2.txt", "file": None, "lines": None},
-                "SLAB_USBtoUART12": {"filename" : "SLAB_USBtoUART.txt", "file": None, "lines": None},
-                "SLAB_USBtoUART3": {"filename" : "SLAB_USBtoUART6.txt", "file": None, "lines": None}}
+files_to_log = {"sensor1": {"filename" : "tmp_sensorlog1.txt", "file": None, "lines": None},
+                "sensor2": {"filename" : "tmp_sensorlog2.txt", "file": None, "lines": None},
+                "sensor3": {"filename" : "tmp_sensorlog3.txt", "file": None, "lines": None},
+                "sensor4": {"filename" : "tmp_sensorlog4.txt", "file": None, "lines": None}}
 
+# TODO: make a switch for line 54-56
 
-file_out_name = "20210323_controller2c_offtakes_after_target.csv"
+file_out_name = "20210709_filtering_off_on_offtake_on_off_raw_only.csv"
 
 sensors_to_log = [201,202,203,204]
 
@@ -43,16 +44,25 @@ for line in range(max_lines):
         if len(data) < 4:
             continue
         else:
-            if len(data) > 7: #5
-                print("WARNING > 5")
+            if len(data) > 8: #5
+                print("WARNING > TOO MANY VALUES ON A LINE")
                 continue
 
             if data[0] == "Sync":
                 sync_found = True
             else:
-                #sensor_data[int(data[0])] = "%s,%s,%s,%s" % (data[0], data[1], data[2], data[3])#files_to_log[d]["lines"][line]
-                sensor_data[int(data[0])] = "%s,%s,%s,%s,%s,%s" % (
-                data[0], data[1], data[2], data[3], data[4], data[5])  # files_to_log[d]["lines"][line]
+                # output values needed to do identification (APP_SERIAL_NORMAL / CTRL_COMMAND_MANUAL)
+                sensor_data[int(data[1])] = "%s,%s,%s,%s" % (
+                    data[1], data[4], data[5], data[6])
+
+                # output values needed to show control (APP_SERIAL_NORMAL / CTRL_COMMAND_AUTO)
+                # sensor_data[int(data[0])] = "%s,%s,%s,%s,%s,%s" % (
+                # data[0], data[1], data[2], data[3], data[4], data[5])
+
+                # # output values needed to show filtering and do identification (APP_SERIAL_NORMAL / CTRL_COMMAND_MANUAL)
+                # sensor_data[int(data[1])] = "%s,%s,%s,%s,%s,%s" % (
+                # data[1], data[2], data[3], data[4], data[5], data[6])
+
 
                 sensor_count += 1
 

@@ -32,18 +32,14 @@ sensors_to_log = [201, 202, 203, 204]
 sensors_data = {201: {'s1': 0, 's2': 0, 'a': 0}, 202: {'s1': 0, 's2': 0, 'a': 0}, 203: {'s1': 0, 's2': 0, 'a': 0}, 204: {'s1': 0, 's2': 0, 'a': 0}}
 sensor_to_sync = 204
 
-files_to_log = {"SLAB_USBtoUART": {"filename" : "SLAB_USBtoUART3.txt", "file": None, "lines": None},
-                "SLAB_USBtoUART7": {"filename" : "SLAB_USBtoUART2.txt", "file": None, "lines": None},
-                "SLAB_USBtoUART4": {"filename" : "SLAB_USBtoUART.txt", "file": None, "lines": None},
-                "SLAB_USBtoUART11": {"filename" : "SLAB_USBtoUART6.txt", "file": None, "lines": None}}
+# manually add port to log here
+files_to_log = {"SLAB_USBtoUART": {"filename" : "tmp_sensorlog1.txt", "file": None, "lines": None},
+                "SLAB_USBtoUART4": {"filename" : "tmp_sensorlog2.txt", "file": None, "lines": None},
+                "SLAB_USBtoUART8": {"filename" : "tmp_sensorlog3.txt", "file": None, "lines": None},
+                "SLAB_USBtoUART7": {"filename" : "tmp_sensorlog4.txt", "file": None, "lines": None}}
 
-# sensors_to_log = [247, 210]
-# sensors_data = {247: {'s1': 0, 's2': 0, 'a': 0}, 210: {'s1': 0, 's2': 0, 'a': 0}}
-# sensor_to_sync = 210
-
-ports_to_skip = ['/dev/tty.SLAB_USBtoUART3', '/dev/tty.SLAB_USBtoUART5', '/dev/tty.SLAB_USBtoUART6', '/dev/tty.SLAB_USBtoUART16']
-#ports_to_skip = ['/dev/tty.SLAB_USBtoUART13', '/dev/tty.SLAB_USBtoUART', '/dev/tty.SLAB_USBtoUART12', '/dev/tty.SLAB_USBtoUART5']
-#ports_to_skip = []#['/dev/tty.SLAB_USBtoUART13', '/dev/tty.SLAB_USBtoUART', '/dev/tty.SLAB_USBtoUART12', '/dev/tty.SLAB_USBtoUART5']
+# manually add ports to skip here
+ports_to_skip = ['/dev/tty.SLAB_USBtoUART9', '/dev/tty.SLAB_USBtoUART3', '/dev/tty.SLAB_USBtoUART5', '/dev/tty.SLAB_USBtoUART6']
 
 # to stop the threads
 running = True
