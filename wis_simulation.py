@@ -63,6 +63,8 @@ class WisSimulation:
         self.flows = [0, 0, 0, 0]
         self.sleeps = [0, 0, 0, 0]
 
+        self.last_sleep = 1;
+
         self.pressures = np.array([[0, 0, 0, 0, 0, 0, 0]])
         self.simulationHasRun = False
 
@@ -88,8 +90,9 @@ class WisSimulation:
             # Sanity check first
             if not self.f_started:
                 self.f_started = True
-                if epoch != self.current_epoch + 1:
-                    assert self.current_epoch == -1, "New epoch is not the last + 1"
+                if epoch != self.current_epoch + self.last_sleep:
+                    #assert self.current_epoch == -1, "New epoch is not the last + sleeping periods"
+                    print("WARNING: did we mis a period????") # created a warning because when sleeping this might happen
                 print("#### %d ####" % epoch)
                 self.current_epoch = epoch
             assert self.current_epoch == epoch, "Received f for wrong epoch"
@@ -150,6 +153,8 @@ class WisSimulation:
 
                 # run sim
                 u = np.array([[self.flows[0]], [self.flows[1]], [self.flows[2]]])
+
+                self.last_sleep = self.sleeps[id-201]
                 for i in range(self.sleeps[id-201]): # use sleep time from the node that triggered the update
                     for j in range(self.SPS):
                         self.xpd = np.add(np.add(np.matmul(self.Apd, self.xpd), np.matmul(self.Bpd, u)),  self.Epd * (1 if self.kk >= 20 else 0))
@@ -364,7 +369,7 @@ class Jimterm:
 
     def join(self):
         for thread in self.threads:
-            while thread.isAlive():
+            while thread.is_alive():
                 thread.join(0.1)
 
     def quote_raw(self, data):
