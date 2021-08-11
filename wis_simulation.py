@@ -26,6 +26,8 @@ import string
 import re
 import numpy as np
 import subprocess
+# to save data in Matlab format
+from scipy.io import savemat
 
 # to filter out the serial data we want to log
 sensors_to_log = [201, 202, 203, 204]
@@ -63,7 +65,13 @@ class WisSimulation:
         self.flows = [0, 0, 0, 0]
         self.sleeps = [0, 0, 0, 0]
 
-        self.last_sleep = 1;
+        # init empty log matrices
+        self.radio_log = np.array([[], [], []])
+        self.y_log = np.array([[], [], []])
+        self.u_log = np.array([[], [], []])
+        self.error_log = np.array([[], [], []])
+
+        self.last_sleep = 1
 
         self.pressures = np.array([[0, 0, 0, 0, 0, 0, 0]])
         self.simulationHasRun = False
@@ -84,6 +92,9 @@ class WisSimulation:
 
         self.kk = 0
 
+        self.epoch_end = 1800
+        self.filename = "../Simulation/pstc/20210810temp_rename_python.mat"
+
     def handleMessage(self, command, id, epoch, data, serial):
         if command == "f":
             #print("flows received")
@@ -95,15 +106,26 @@ class WisSimulation:
                     print("WARNING: did we mis a period????") # created a warning because when sleeping this might happen
                 print("#### %d ####" % epoch)
                 self.current_epoch = epoch
-            assert self.current_epoch == epoch, "Received f for wrong epoch"
+                # radios received when starting to receive f, log radios for
+
+                self.radio_log = np.append(self.radio_log, [[self.radios[0]], [self.radios[1]], [self.radios[2]]], axis=1)
+            # assert self.current_epoch == epoch, "Received f for wrong epoch"
+            if (self.current_epoch != epoch):
+                print("ERROR: f for wrong epoch")
+                self.error_log = np.append(self.error_log, [[0], [epoch], [-2]], axis=1)
+
             self.f_received += 1
             if self.r_received == 4:
                 self.r_received = 0
-            assert self.r_received == 0, "Did not receive all r"
+            # assert self.r_received == 0, "Did not receive all r"
+            if (self.r_received != 0):
+                print("ERROR: did not receive all r")
+                self.error_log = np.append(self.error_log, [[0], [epoch], [-1]], axis=1)
+                self.r_received = 0
 
             # store flow
             flow = data/1000000
-            print(flow)
+            #print(flow)
             self.flows[id - 201] = flow
 
             # reset to activate next sim
@@ -114,7 +136,11 @@ class WisSimulation:
             # Sanity check first
 
             if self.current_epoch > -1:
-                assert self.current_epoch == epoch, "Received s for wrong epoch"
+                # assert self.current_epoch == epoch, "Received s for wrong epoch"
+                if (self.current_epoch != epoch):
+                    print("ERROR: s for wrong epoch")
+                    self.error_log = np.append(self.error_log, [[0], [epoch], [-3]], axis=1)
+
             self.s_received += 1
 
 
@@ -124,22 +150,40 @@ class WisSimulation:
             # process all received radio's
             # TODO: later is sim works
 
+        # node sends an error
+        if command == "e":
+            print("ERROR %d, %d from %d" % (epoch, data, id))
+            self.error_log = np.append(self.error_log, [[id], [epoch], [data]], axis=1)
+
         if command == "r":
             #print("radio received")
             # Sanity check first
             # Are we in the correct epoch
             if self.current_epoch > -1:
-                assert self.current_epoch == epoch, "Received r for wrong epoch"
+                # assert self.current_epoch == epoch, "Received r for wrong epoch"
+                if (self.current_epoch != epoch):
+                    print("ERROR: r for wrong epoch")
+                    self.error_log = np.append(self.error_log, [[0], [epoch], [-3]], axis=1)
+
             # count r
             self.r_received += 1
             # Did we receive all s before r starts? (could go wrong if we did not receive any)
             if self.s_received == 4:
                 self.s_received = 0
-            assert self.s_received == 0, "Did not receive all s"
+            # assert self.s_received == 0, "Did not receive all s"
+            if (self.s_received != 0):
+                print("ERROR: Did not receive all s")
+                self.error_log = np.append(self.error_log, [[0], [epoch], [-4]], axis=1)
+                self.s_received = 0
+
             self.f_started = False
             if self.f_received == 4:
                 self.f_received = 0
-            assert self.f_received == 0, "Did not receive all f"
+            # assert self.f_received == 0, "Did not receive all f"
+            if (self.f_received != 0):
+                print("ERROR: Did not receive all f")
+                self.error_log = np.append(self.error_log, [[0], [epoch], [-5]], axis=1)
+                self.f_received = 0
 
             # store radio
             self.radios[id - 201] = data
@@ -147,7 +191,7 @@ class WisSimulation:
             # update simulation, using received sleep
             # only process once
             if not self.simulationHasRun:
-                print("sim")
+                #print("sim")
                 # avoid double update
                 self.simulationHasRun = True
 
@@ -156,21 +200,47 @@ class WisSimulation:
 
                 self.last_sleep = self.sleeps[id-201]
                 for i in range(self.sleeps[id-201]): # use sleep time from the node that triggered the update
+                    # add logging for the sleeping periods
+                    if i > 0:
+                        mdic = {"y_log": self.y_log, "u_log": self.u_log, "radio_log": self.radio_log,
+                                "error_log": self.error_log}
+                        yd = np.matmul(self.Cpd, self.xpd)
+                        self.y_log = np.append(self.y_log, [[yd[0, 0]], [yd[1, 0]], [yd[2, 0]]], axis=1)
+                        self.u_log = np.append(self.u_log, [[self.flows[0]], [self.flows[1]], [self.flows[2]]], axis=1)
+                        self.radio_log = np.append(self.radio_log,
+                                                   [[0], [0], [0]], axis=1)
+
                     for j in range(self.SPS):
                         self.xpd = np.add(np.add(np.matmul(self.Apd, self.xpd), np.matmul(self.Bpd, u)),  self.Epd * (1 if self.kk >= 20 else 0))
                         self.kk += 1
 
+
+
                 yd = np.matmul(self.Cpd, self.xpd)
-                print(yd)
+                #print(yd)
 
                 # convert water levels to pressure
                 levels = np.array([[0.30, yd[0], yd[0], yd[1], yd[1], yd[2], yd[2]]])
                 self.pressures = np.divide((np.subtract((levels * 100),  self.wisB)), self.wisA)
 
+                # simulation run, log u and y
+                self.y_log = np.append(self.y_log, [[yd[0,0]], [yd[1,0]], [yd[2,0]]], axis=1)
+                self.u_log = np.append(self.u_log, [[self.flows[0]], [self.flows[1]], [self.flows[2]]], axis=1)
+
+                # stop?
+                if (self.kk == self.epoch_end):
+                    self.saveReplay()
+
             # send water levels
             pressures = "%d %d %d\n" % (id, self.pressures[0,(id - 201)*2], 0 if id == 204 else self.pressures[0,(id - 201)*2 + 1])
             # print(pressures)
             serial.write(pressures.encode())
+
+    def saveReplay(self):
+        print("-------------- save ---------------")
+        mdic = {"y_log": self.y_log, "u_log": self.u_log, "radio_log": self.radio_log, "error_log": self.error_log}
+
+        savemat(self.filename, mdic)
 
 def firefly_devices():
 
@@ -365,6 +435,7 @@ class Jimterm:
             thread.start()
 
     def stop(self):
+        self.simulation.saveReplay()
         self.alive = False
 
     def join(self):
