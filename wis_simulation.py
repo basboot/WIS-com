@@ -202,13 +202,16 @@ class WisSimulation:
                 for i in range(self.sleeps[id-201]): # use sleep time from the node that triggered the update
                     # add logging for the sleeping periods
                     if i > 0:
-                        mdic = {"y_log": self.y_log, "u_log": self.u_log, "radio_log": self.radio_log,
-                                "error_log": self.error_log}
+                        # update logs when doing extra sleep
+                        # current levels
                         yd = np.matmul(self.Cpd, self.xpd)
                         self.y_log = np.append(self.y_log, [[yd[0, 0]], [yd[1, 0]], [yd[2, 0]]], axis=1)
+                        # flows stay the same
                         self.u_log = np.append(self.u_log, [[self.flows[0]], [self.flows[1]], [self.flows[2]]], axis=1)
+                        # radios are off, radio log lags one, so update first time and reset to zero
                         self.radio_log = np.append(self.radio_log,
-                                                   [[0], [0], [0]], axis=1)
+                                                   [[self.radios[0]], [self.radios[1]], [self.radios[2]]], axis=1)
+                        self.radios = [0, 0, 0, 0]
 
                     for j in range(self.SPS):
                         self.xpd = np.add(np.add(np.matmul(self.Apd, self.xpd), np.matmul(self.Bpd, u)),  self.Epd * (1 if self.kk >= 20 else 0))
