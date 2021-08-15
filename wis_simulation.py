@@ -92,8 +92,13 @@ class WisSimulation:
 
         self.kk = 0
 
+        self.command_log = []
+
         self.epoch_end = 1800
-        self.filename = "../Simulation/pstc/20210810temp_rename_python.mat"
+        self.filename = "../Simulation/pstc/20210815temp_rename_python.mat"
+
+    def log(self, command):
+        self.command_log.append(command)
 
     def handleMessage(self, command, id, epoch, data, serial):
         if command == "f":
@@ -105,6 +110,7 @@ class WisSimulation:
                     #assert self.current_epoch == -1, "New epoch is not the last + sleeping periods"
                     print("WARNING: did we mis a period????") # created a warning because when sleeping this might happen
                 print("#### %d ####" % epoch)
+                self.log("#### %d ####" % epoch)
                 self.current_epoch = epoch
                 # radios received when starting to receive f, log radios for
 
@@ -130,6 +136,7 @@ class WisSimulation:
 
             # reset to activate next sim
             self.simulationHasRun = False
+            self.log("Reset sim")
 
         if command == "s":
             #print("sleep received")
@@ -153,6 +160,7 @@ class WisSimulation:
         # node sends an error
         if command == "e":
             print("ERROR %d, %d from %d" % (epoch, data, id))
+            self.command_log.append("ERROR %d, %d from %d" % (epoch, data, id))
             self.error_log = np.append(self.error_log, [[id], [epoch], [data]], axis=1)
 
         if command == "r":
@@ -192,6 +200,7 @@ class WisSimulation:
             # only process once
             if not self.simulationHasRun:
                 #print("sim")
+                self.log("Run sim")
                 # avoid double update
                 self.simulationHasRun = True
 
@@ -237,11 +246,14 @@ class WisSimulation:
             # send water levels
             pressures = "%d %d %d\n" % (id, self.pressures[0,(id - 201)*2], 0 if id == 204 else self.pressures[0,(id - 201)*2 + 1])
             # print(pressures)
-            serial.write(pressures.encode())
+            pressures_enc = pressures.encode()
+            serial.write(pressures_enc)
+
+            self.log("SEND: %s" % pressures_enc)
 
     def saveReplay(self):
         print("-------------- save ---------------")
-        mdic = {"y_log": self.y_log, "u_log": self.u_log, "radio_log": self.radio_log, "error_log": self.error_log}
+        mdic = {"y_log": self.y_log, "u_log": self.u_log, "radio_log": self.radio_log, "error_log": self.error_log, "command_log": self.command_log}
 
         savemat(self.filename, mdic)
 
@@ -533,8 +545,11 @@ class Jimterm:
                 #print(type(data))
                 commands = data.decode("utf-8").rstrip().split("\n")
                 for c in commands:
+                    self.simulation.log(c.rstrip())
                     command = c.rstrip().split(",")
                     #print(command)
+                    if len(command) != 4:
+                        print(command)
                     assert len(command) == 4, "Command not correct received (serial problem?)"
                     self.simulation.handleMessage(command[0], int(command[1]), int(command[2]), int(command[3]), serial)
 
