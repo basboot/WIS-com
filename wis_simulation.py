@@ -13,7 +13,7 @@
 # than one, each device's output is in a different color.  Input
 # is directed to the first device, or can be sent to all devices
 # with --all.
-
+import math
 import sys
 import os
 import serial
@@ -95,7 +95,9 @@ class WisSimulation:
         self.command_log = []
 
         self.epoch_end = 1800
-        self.filename = "../Simulation/pstc/20210815temp_rename_python.mat"
+        self.filename = "../Simulation/pstc/20210816temp_rename_python.mat"
+
+        self.requested_flows = None
 
     def log(self, command):
         self.command_log.append(command)
@@ -198,7 +200,7 @@ class WisSimulation:
 
             # update simulation, using received sleep
             # only process once
-            if not self.simulationHasRun:
+            if self.r_received == 4:
                 #print("sim")
                 self.log("Run sim")
                 # avoid double update
@@ -210,12 +212,18 @@ class WisSimulation:
                 self.last_sleep = self.sleeps[id-201]
                 for i in range(self.sleeps[id-201]): # use sleep time from the node that triggered the update
                     # add logging for the sleeping periods
+
+                    # create copy of requested flow
+                    self.requested_flows = self.flows.copy()
+
                     if i > 0:
                         # update logs when doing extra sleep
                         # current levels
                         yd = np.matmul(self.Cpd, self.xpd)
                         self.y_log = np.append(self.y_log, [[yd[0, 0]], [yd[1, 0]], [yd[2, 0]]], axis=1)
-                        # flows stay the same
+
+                        # TODO: note that the logs are shifted by one for the nodes that did not trigger the update
+                        # (desired) flows stay the same
                         self.u_log = np.append(self.u_log, [[self.flows[0]], [self.flows[1]], [self.flows[2]]], axis=1)
                         # radios are off, radio log lags one, so update first time and reset to zero
                         self.radio_log = np.append(self.radio_log,
