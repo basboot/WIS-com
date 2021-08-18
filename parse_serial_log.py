@@ -1,5 +1,11 @@
+# script to parse raw logging from the four sensor/actuators into a single file
+#
+# Run after running log_terminal.py
+#
+# Some changes might have ro be changed on line 60-70 depending on the logging level used.
+
 # settings
-sps = 128
+sps = 128           # samples per second used in the inner loop
 ts = 1/sps
 
 t = 0

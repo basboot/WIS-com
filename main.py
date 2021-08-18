@@ -1,4 +1,6 @@
+#
 # Very simple Python example to check serial communication with the WIS
+#
 import time
 
 import serial

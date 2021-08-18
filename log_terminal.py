@@ -1,5 +1,13 @@
 #!/usr/bin/python
 
+
+# This logging script is based on the terminal logging script from Jim Paris
+#
+# This script logs the four Fireflies of the WCB network. Define the usb ports to log and exclude on line 44 and 50.
+#
+
+# ---------------------------------------------------------------------------------
+
 # Jim Paris <jim@jtan.com>
 
 # Simple terminal program for serial devices.  Supports setting

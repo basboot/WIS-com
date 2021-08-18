@@ -1,3 +1,8 @@
+# script to flash all fireflies
+#
+# Usage: python flashff.py subdirectory_with_crystal_bin
+#
+
 import sys
 import subprocess
 
