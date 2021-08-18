@@ -95,7 +95,7 @@ class WisSimulation:
         self.command_log = []
 
         self.epoch_end = 1800
-        self.filename = "../Simulation/pstc/20210816temp_rename_python.mat"
+        self.filename = "../Simulation/pstc/20210818temp_rename_python.mat"
 
         self.requested_flows = None
 
@@ -139,6 +139,9 @@ class WisSimulation:
             # reset to activate next sim
             self.simulationHasRun = False
             self.log("Reset sim")
+
+        if command == "c":
+            self.log("[%d - %d] %f" % (epoch, id, (data/1000000)))
 
         if command == "s":
             #print("sleep received")
