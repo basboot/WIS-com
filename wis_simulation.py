@@ -200,7 +200,7 @@ class WisSimulation:
 
             # update simulation, using received sleep
             # only process once
-            if self.r_received == 4:
+            if not self.simulationHasRun:
                 #print("sim")
                 self.log("Run sim")
                 # avoid double update
