@@ -22,3 +22,5 @@ Combines the temprary logs into one csv-file with all sensors combines in one li
 ## wis_simulation.py
 
 A hardware-in-the-loop created specific for the WCB-E+ branch to test ETC+.
+
+Note: this simulation can only be connected to the dev-etcp branch of WCB.
